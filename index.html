@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эпическая Рулетка Слов с Формиками</title>
+    <style>
+        /* === ПОЛНЫЙ CSS (ваш исходный + мои дополнения) === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #00eeff;
+            box-shadow: 0 0 30px rgba(0, 238, 255, 0.3);
+        }
+
+        .roulette-section {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+        }
+
+        .stats-section {
+            background: rgba(20, 40, 20, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .roulette-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 30px auto;
+        }
+
+        .roulette-wheel {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 15px solid #ffd700;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            background: #1a1a2e;
+            transition: transform 3s cubic-bezier(0.1, 0.3, 0.2, 1);
+        }
+
+        .roulette-sector {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 60px;
+            padding-bottom: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .roulette-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: #ff0000;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 10;
+            filter: drop-shadow(0 0 10px red);
+        }
+
+        .word-display {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 60px;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            border: 3px solid #00eeff;
+            text-shadow: 0 0 15px currentColor;
+            transition: all 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rare { 
+            color: #4ecdc4;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+        .epic { 
+            color: #9d4edd;
+            border-color: #9d4edd;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
+        }
+        .legendary { 
+            color: #ffd700;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .spin-btn {
+            display: block;
+            width: 250px;
+            margin: 20px auto;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(255, 0, 128, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 128, 0.6);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: #00eeff;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00eeff;
+            margin-top: 5px;
+            text-shadow: 0 0 10px rgba(0, 238, 255, 0.5);
+        }
+
+        .upgrade-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 176, 155, 0.4);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .hire-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #8a2be2, #4b0082);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hire-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .hire-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .save-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4169e1, #1e90ff);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .save-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(65, 105, 225, 0.4);
+        }
+
+        .formiks-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .formik-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #8a2be2;
+        }
+
+        h1 {
+            color: #00eeff;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 238, 255, 0.7);
+        }
+
+        h2 {
+            color: #00eeff;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 238, 255, 0.5);
+            font-size: 1.6em;
+        }
+
+        h3 {
+            color: #ffd700;
+            margin: 15px 0 10px 0;
+            font-size: 1.3em;
+        }
+
+        .level-display {
+            font-size: 36px;
+            text-align: center;
+            color: #ff8c00;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 140, 0, 0.7);
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 3px solid #ff8c00;
+        }
+
+        .chances {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chance-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .chance-item:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            25% { color: #ffff00; }
+            50% { color: #00ff00; }
+            75% { color: #00ffff; }
+            100% { color: #ff00ff; }
+        }
+
+        @keyframes coin {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s infinite;
+        }
+
+        .bounce {
+            animation: bounce 0.5s ease infinite;
+        }
+
+        .rainbow {
+            animation: rainbow 1s linear infinite;
+        }
+
+        .coin-animation {
+            animation: coin 0.5s ease-in-out;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            border-left: 5px solid;
+            transform: translateX(400px);
+            transition: transform 0.5s;
+            z-index: 1000;
+            min-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .history-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .formiks-production {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #8a2be2;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            width: 300px;
+        }
+
+        .warning {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+
+        .success {
+            color: #00ff00;
+        }
+
+        .production-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(138, 43, 226, 0.2);
+            border-radius: 8px;
+        }
+
+        .production-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        /* === НОВЫЕ СТИЛИ ДЛЯ ОТОБРАЖЕНИЯ ПОТРЕБЛЕНИЯ РИСА === */
+        .consumption-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 140, 0, 0.2);
+            border-radius: 8px;
+            border-left: 4px solid #ff8c00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎡 ЭПИЧЕСКАЯ РУЛЕТКА СЛОВ И ФОРМИКИ 🎡</h1>
+            <p style="font-size: 1.2em;">Крути рулетку, получай слова, найми формиков для добычи эйдосов!</p>
+            <p style="color: #ff8c00; margin-top: 10px;">🍚 Формики едят 15 риса/мин и приносят 10 эйдосов/мин</p>
+        </div>
+
+        <div class="roulette-section">
+            <h2>🎰 РУЛЕТКА СЛОВ</h2>
+            
+            <div class="roulette-container">
+                <div class="roulette-pointer"></div>
+                <div class="roulette-wheel" id="rouletteWheel">
+                    <!-- Секторы будут добавлены через JavaScript -->
+                </div>
+            </div>
+
+            <div id="currentWord" class="word-display">Готов к вращению!</div>
+
+            <button class="spin-btn" id="spinBtn">🎯 КРУТИТЬ! (50 эйдосов)</button>
+
+            <div class="chances">
+                <div class="chance-item">
+                    <div style="color: #4ecdc4; font-size: 1.1em;">● РЕДКИЕ</div>
+                    <div style="font-size: 1.2em; font-weight: bold;">70%</div>
+                </div>
+                <div class="chance-item">
+                    <div style="color: #9d4edd; font-size: 1.1em;">● ЭПИЧЕСКИЕ</div>
+                    <div style="font-size: 1.2em; font-weight: bold;">45%</div>
+                </div>
+                <div class="chance-item">
+                    <div style="color: #ffd700; font-size: 1.1em;">● ЛЕГЕНДАРНЫЕ</div>
+                    <div style="font-size: 1.2em; font-weight: bold;">25%</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+                <h3>🎁 НАГРАДЫ ЗА СЛОВА:</h3>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px;">
+                    <div style="background: rgba(78, 205, 196, 0.1); padding: 10px; border-radius: 10px;">
+                        <div style="color: #4ecdc4; font-weight: bold;">Редкое слово:</div>
+                        <div>10 эйдосов, 1.000 XP, 200 эфира, 200 риса</div>
+                    </div>
+                    <div style="background: rgba(157, 78, 221, 0.1); padding: 10px; border-radius: 10px;">
+                        <div style="color: #9d4edd; font-weight: bold;">Эпическое слово:</div>
+                        <div>50 эйдосов, 7.000 XP, 1.000 формы, 2.000 эфира, 2.000 риса</div>
+                    </div>
+                    <div style="background: rgba(255, 215, 0, 0.1); padding: 10px; border-radius: 10px;">
+                        <div style="color: #ffd700; font-weight: bold;">Легендарное слово:</div>
+                        <div>200 эйдосов, 15.000 XP, 5.000 формы, 5.000 эфира, 5.000 риса</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>📊 СТАТИСТИКА И УПРАВЛЕНИЕ</h2>
+            
+            <div class="level-display">
+                Уровень: <span id="currentLevel">1</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div>🎴 ЭЙДОСЫ:</div>
+                    <div class="stat-value" id="eidosCount">100</div>
+                </div>
+                <div class="stat-item">
+                    <div>⭐ ОЧКИ (XP):</div>
+                    <div class="stat-value" id="xpCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div>🔄 ФОРМА:</div>
+                    <div class="stat-value" id="formCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div>💫 ЭФИР:</div>
+                    <div class="stat-value" id="etherCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div>🍚 РИС:</div>
+                    <div class="stat-value" id="riceCount">500</div>
+                </div>
+                <div class="stat-item">
+                    <div>💰 СТОИМОСТЬ УРОВНЯ:</div>
+                    <div class="stat-value" id="levelCost">2.000</div>
+                </div>
+            </div>
+
+            <button class="upgrade-btn" id="upgradeBtn">
+                ⬆ ПРОКАЧАТЬ УРОВЕНЬ ⬆<br>
+                <small style="font-size: 0.7em;">Требуется: <span id="requiredXP">2.000</span> XP</small>
+            </button>
+
+            <button class="hire-btn" id="hireBtn">
+                🤖 НАНЯТЬ ФОРМИКА<br>
+                <small style="font-size: 0.7em;">Стоимость: 2.000 эфира, 1.500 формы, 1.500 риса</small>
+                <small style="font-size: 0.7em; display: block; margin-top: 5px;">Добывает: 10 эйдосов/мин, ест: 15 риса/мин</small>
+            </button>
+
+            <button class="save-btn" id="saveBtn">
+                💾 СОХРАНИТЬ ДАННЫЕ
+            </button>
+
+            <div class="formiks-display">
+                <h3>🤖 ФОРМИКИ (<span id="formiksCount">0</span>):</h3>
+                <div id="formiksList" style="max-height: 150px; overflow-y: auto; margin-top: 10px;">
+                    <!-- Список формиков будет здесь -->
+                </div>
+                <div style="margin-top: 10px; color: #00ff00;">
+                    Общая добыча эйдосов: <span id="formiksEidosProduction">0</span>/мин
+                </div>
+                <div style="margin-top: 5px; color: #ff8c00;">
+                    Общее потребление риса: <span id="formiksRiceConsumption">0</span>/мин
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+                <h3>📈 ИСТОРИЯ ВЫПАДЕНИЙ:</h3>
+                <div id="historyList" style="max-height: 150px; overflow-y: auto; padding-right: 10px;">
+                    <!-- История будет добавляться здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="formiks-production">
+        <div style="color: #8a2be2; font-weight: bold; font-size: 1.1em;">🤖 ПРОИЗВОДСТВО ФОРМИКОВ</div>
+        <div style="margin-top: 10px; font-size: 0.9em;">
+            <div class="production-display">
+                <div>
+                    <div>Всего формиков: <span id="totalFormiksDisplay">0</span></div>
+                    <div>Добыча эйдосов: <span id="totalEidosProduction">0</span>/мин</div>
+                </div>
+                <div class="production-icon">🔄</div>
+            </div>
+            <!-- НОВЫЙ БЛОК: потребление риса -->
+            <div class="consumption-display">
+                <div>
+                    <div>🍚 Потребление риса:</div>
+                    <div><span id="totalRiceConsumption">0</span>/мин</div>
+                </div>
+                <div style="color: #ff8c00;">⚠️</div>
+            </div>
+            <div style="margin-top: 10px; color: #4ecdc4;">
+                Следующая добыча через: <span id="productionTimer">60</span> сек
+            </div>
+            <div style="margin-top: 5px; font-size: 0.8em; color: #aaa;">
+                Каждый формик добывает 10 эйдосов и съедает 15 риса в минуту
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // ========== ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ИГРЫ ==========
+        let gameState = {
+            eidos: 100,
+            xp: 0,
+            form: 0,
+            ether: 0,
+            rice: 500,
+            level: 1,
+            levelUpCost: 2000,
+            isSpinning: false,
+            formiks: [],
+            productionTimer: 60,
+            productionInterval: null,
+            lastSave: null,
+            totalEidosEarned: 0,
+            totalRiceConsumed: 0
+        };
+
+        // ========== ГЕНЕРАТОР СЛУЧАЙНЫХ СЛОВ ==========
+        const wordGenerator = {
+            prefixes: ["Квант", "Астра", "Космо", "Гипер", "Супер", "Мега", "Ультра", "Нео", "Архи", "Прото"],
+            middles: ["Вихрь", "Поток", "Импульс", "Резонанс", "Волна", "Энергия", "Материя", "Пространство", "Время"],
+            suffixes: ["Сфера", "Матрица", "Кристалл", "Ядро", "Сердце", "Источник", "Генератор", "Реактор"],
+            
+            generateWord() {
+                const prefix = this.prefixes[Math.floor(Math.random() * this.prefixes.length)];
+                const middle = this.middles[Math.floor(Math.random() * this.middles.length)];
+                const suffix = this.suffixes[Math.floor(Math.random() * this.suffixes.length)];
+                
+                const patterns = [
+                    `${prefix}${middle}`,
+                    `${middle} ${suffix}`,
+                    `${prefix}${suffix}`,
+                    `${prefix} ${middle} ${suffix}`
+                ];
+                
+                return patterns[Math.floor(Math.random() * patterns.length)];
+            }
+        };
+
+        // ========== СИСТЕМА НАГРАД ==========
+        const rewards = {
+            rare: { 
+                eidos: 10, 
+                xp: 1000, 
+                ether: 200, 
+                rice: 200, 
+                form: 0,
+                color: "#4ecdc4",
+                name: "Редкое"
+            },
+            epic: { 
+                eidos: 50, 
+                xp: 7000, 
+                ether: 2000, 
+                rice: 2000, 
+                form: 1000,
+                color: "#9d4edd",
+                name: "Эпическое"
+            },
+            legendary: { 
+                eidos: 200, 
+                xp: 15000, 
+                ether: 5000, 
+                rice: 5000, 
+                form: 5000,
+                color: "#ffd700",
+                name: "Легендарное"
+            }
+        };
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            initRoulette();
+            setupEventListeners();
+            startProductionTimer();
+            loadGame();
+            createNotification("Добро пожаловать в Эпическую Рулетку!", "#00eeff");
+        });
+
+        function initGame() {
+            updateDisplay();
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ РУЛЕТКИ ==========
+        function initRoulette() {
+            const wheel = document.getElementById('rouletteWheel');
+            const sectors = 12;
+            
+            wheel.innerHTML = '';
+            
+            for (let i = 0; i < sectors; i++) {
+                const sector = document.createElement('div');
+                sector.className = 'roulette-sector';
+                
+                let color;
+                if (i < 8) { // 67% - редкие
+                    color = "#ff6b6b";
+                } else if (i < 11) { // 25% - эпические
+                    color = "#9d4edd";
+                } else { // 8% - легендарные
+                    color = "#ffd700";
+                }
+                
+                sector.style.background = color;
+                sector.style.transform = `rotate(${i * (360 / sectors)}deg)`;
+                
+                wheel.appendChild(sector);
+            }
+        }
+
+        // ========== НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ==========
+        function setupEventListeners() {
+            document.getElementById('spinBtn').addEventListener('click', spinRoulette);
+            document.getElementById('upgradeBtn').addEventListener('click', upgradeLevel);
+            document.getElementById('hireBtn').addEventListener('click', hireFormik);
+            document.getElementById('saveBtn').addEventListener('click', saveGame);
+        }
+
+        // ========== ЗАПУСК ТАЙМЕРА ПРОИЗВОДСТВА/ПОТРЕБЛЕНИЯ ==========
+        function startProductionTimer() {
+            if (gameState.productionInterval) {
+                clearInterval(gameState.productionInterval);
+            }
+            
+            gameState.productionInterval = setInterval(function() {
+                gameState.productionTimer--;
+                
+                if (gameState.productionTimer <= 0) {
+                    processFormiks(); // единая функция для добычи и потребления
+                    gameState.productionTimer = 60;
+                }
+                
+                document.getElementById('productionTimer').textContent = gameState.productionTimer;
+                
+            }, 1000);
+        }
+
+        // ========== ОБРАБОТКА ФОРМИКОВ (ДОБЫЧА + ПОТРЕБЛЕНИЕ) ==========
+        function processFormiks() {
+            if (gameState.formiks.length === 0) return;
+
+            const count = gameState.formiks.length;
+            const eidosGain = count * 10;
+            const riceCost = count * 15;
+
+            if (gameState.rice >= riceCost) {
+                // Хватает риса – добыча и списание
+                gameState.rice -= riceCost;
+                gameState.eidos += eidosGain;
+                gameState.totalRiceConsumed += riceCost;
+                gameState.totalEidosEarned += eidosGain;
+
+                createNotification(`🤖 Формики добыли ${eidosGain} эйдосов и съели ${riceCost} риса`, "#00ff00");
+                
+                // Анимация получения эйдосов
+                const eidosElement = document.getElementById('eidosCount');
+                eidosElement.classList.add('coin-animation');
+                setTimeout(() => eidosElement.classList.remove('coin-animation'), 500);
+            } else {
+                // Недостаточно риса – формики голодают
+                const remainingRice = gameState.rice;
+                gameState.rice = 0;
+                gameState.totalRiceConsumed += remainingRice;
+                
+                createNotification(`⚠️ Формики голодают! Не хватило ${riceCost - remainingRice} риса. Добычи нет!`, "#ff4444");
+                
+                // Визуальное предупреждение
+                document.getElementById('riceCount').classList.add('warning');
+                setTimeout(() => document.getElementById('riceCount').classList.remove('warning'), 3000);
+            }
+
+            updateDisplay();
+        }
+
+        // ========== ВРАЩЕНИЕ РУЛЕТКИ ==========
+        function spinRoulette() {
+            if (gameState.isSpinning || gameState.eidos < 50) {
+                if (gameState.eidos < 50) {
+                    createNotification("Недостаточно эйдосов! Нужно 50.", "#ff0000");
+                }
+                return;
+            }
+            
+            gameState.eidos -= 50;
+            gameState.isSpinning = true;
+            
+            const spinBtn = document.getElementById('spinBtn');
+            const wheel = document.getElementById('rouletteWheel');
+            const wordDisplay = document.getElementById('currentWord');
+            
+            spinBtn.disabled = true;
+            spinBtn.textContent = "🌀 Вращается...";
+            
+            const random = Math.random() * 100;
+            let resultRarity;
+            
+            if (random < 70) {
+                resultRarity = 'rare';
+            } else if (random < 85) {
+                resultRarity = 'epic';
+            } else {
+                resultRarity = 'legendary';
+            }
+            
+            const resultWord = wordGenerator.generateWord();
+            
+            const spinDegrees = 1800 + Math.random() * 360;
+            wheel.style.transform = `rotate(${spinDegrees}deg)`;
+            
+            let tempWords = [];
+            for (let i = 0; i < 15; i++) {
+                tempWords.push(wordGenerator.generateWord());
+            }
+            
+            let wordIndex = 0;
+            const wordInterval = setInterval(() => {
+                wordDisplay.textContent = tempWords[wordIndex % tempWords.length];
+                wordIndex++;
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(wordInterval);
+                
+                const reward = rewards[resultRarity];
+                gameState.eidos += reward.eidos;
+                gameState.xp += reward.xp;
+                gameState.form += reward.form;
+                gameState.ether += reward.ether;
+                gameState.rice += reward.rice;
+                
+                wordDisplay.textContent = resultWord;
+                wordDisplay.className = `word-display ${resultRarity}`;
+                
+                addToHistory(resultWord, resultRarity, reward);
+                
+                createNotification(
+                    `🎉 ${reward.name} слово: ${resultWord}! Получено: ${reward.eidos} эйдосов, ${reward.xp} XP`,
+                    reward.color
+                );
+                
+                setTimeout(() => {
+                    wheel.style.transform = 'rotate(0deg)';
+                    gameState.isSpinning = false;
+                    spinBtn.disabled = false;
+                    spinBtn.textContent = "🎯 КРУТИТЬ! (50 эйдосов)";
+                    updateDisplay();
+                }, 1000);
+                
+            }, 3000);
+            
+            updateDisplay();
+        }
+
+        // ========== ПРОКАЧКА УРОВНЯ ==========
+        function upgradeLevel() {
+            if (gameState.xp < gameState.levelUpCost) {
+                createNotification(`Недостаточно XP! Нужно: ${gameState.levelUpCost}`, "#ff0000");
+                return;
+            }
+            
+            gameState.xp -= gameState.levelUpCost;
+            gameState.level++;
+            gameState.levelUpCost = Math.floor(gameState.levelUpCost * 1.3);
+            
+            const levelElement = document.getElementById('currentLevel');
+            levelElement.classList.add('bounce');
+            
+            createNotification(`🎊 Уровень повышен до ${gameState.level}!`, "#00ff00");
+            
+            setTimeout(() => {
+                levelElement.classList.remove('bounce');
+                updateDisplay();
+            }, 1000);
+        }
+
+        // ========== НАЙМ ФОРМИКА ==========
+        function hireFormik() {
+            const etherCost = 2000;
+            const formCost = 1500;
+            const riceCost = 1500;
+            
+            if (gameState.ether < etherCost) {
+                createNotification(`Недостаточно эфира! Нужно: ${etherCost}`, "#ff0000");
+                return;
+            }
+            if (gameState.form < formCost) {
+                createNotification(`Недостаточно формы! Нужно: ${formCost}`, "#ff0000");
+                return;
+            }
+            if (gameState.rice < riceCost) {
+                createNotification(`Недостаточно риса! Нужно: ${riceCost}`, "#ff0000");
+                return;
+            }
+            
+            gameState.ether -= etherCost;
+            gameState.form -= formCost;
+            gameState.rice -= riceCost;
+            
+            const formik = {
+                id: Date.now(),
+                hiredAt: new Date().toLocaleString(),
+                productionRate: 10,
+                consumptionRate: 15
+            };
+            
+            gameState.formiks.push(formik);
+            createNotification(`🤖 Формик нанят! Добывает 10 эйдосов/мин, ест 15 риса/мин`, "#8a2be2");
+            updateDisplay();
+        }
+
+        // ========== ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ ==========
+        function updateDisplay() {
+            // Основные ресурсы
+            document.getElementById('eidosCount').textContent = gameState.eidos;
+            document.getElementById('xpCount').textContent = gameState.xp.toLocaleString();
+            document.getElementById('formCount').textContent = gameState.form.toLocaleString();
+            document.getElementById('etherCount').textContent = gameState.ether.toLocaleString();
+            document.getElementById('riceCount').textContent = gameState.rice.toLocaleString();
+            document.getElementById('currentLevel').textContent = gameState.level;
+            document.getElementById('levelCost').textContent = gameState.levelUpCost.toLocaleString();
+            document.getElementById('requiredXP').textContent = gameState.levelUpCost.toLocaleString();
+
+            // Данные формиков
+            const totalFormiks = gameState.formiks.length;
+            const totalEidosProd = totalFormiks * 10;
+            const totalRiceCons = totalFormiks * 15;
+
+            document.getElementById('formiksCount').textContent = totalFormiks;
+            document.getElementById('formiksEidosProduction').textContent = totalEidosProd;
+            document.getElementById('formiksRiceConsumption').textContent = totalRiceCons;
+            document.getElementById('totalFormiksDisplay').textContent = totalFormiks;
+            document.getElementById('totalEidosProduction').textContent = totalEidosProd;
+            document.getElementById('totalRiceConsumption').textContent = totalRiceCons;
+
+            // Список формиков
+            const formiksList = document.getElementById('formiksList');
+            formiksList.innerHTML = '';
+            
+            if (totalFormiks === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.textAlign = 'center';
+                emptyMsg.style.padding = '20px';
+                emptyMsg.style.color = '#aaa';
+                emptyMsg.textContent = 'У вас еще нет формиков';
+                formiksList.appendChild(emptyMsg);
+            } else {
+                gameState.formiks.forEach((formik, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'formik-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>Формик #${index + 1}</strong>
+                            <div style="font-size:0.8em; color:#aaa;">Нанят: ${formik.hiredAt}</div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="color:#00ff00;">🎴 10/мин</div>
+                            <div style="color:#ff8c00;">🍚 15/мин</div>
+                        </div>
+                    `;
+                    formiksList.appendChild(div);
+                });
+            }
+
+            // Состояние кнопок
+            document.getElementById('spinBtn').disabled = gameState.isSpinning || gameState.eidos < 50;
+            document.getElementById('upgradeBtn').disabled = gameState.xp < gameState.levelUpCost;
+            document.getElementById('hireBtn').disabled = gameState.ether < 2000 || gameState.form < 1500 || gameState.rice < 1500;
+
+            if (gameState.eidos < 50) {
+                document.getElementById('spinBtn').innerHTML = "❌ НЕДОСТАТОЧНО ЭЙДОСОВ";
+            } else {
+                document.getElementById('spinBtn').innerHTML = "🎯 КРУТИТЬ! (50 эйдосов)";
+            }
+
+            // Таймер
+            document.getElementById('productionTimer').textContent = gameState.productionTimer;
+        }
+
+        // ========== ДОБАВЛЕНИЕ В ИСТОРИЮ ==========
+        function addToHistory(word, rarity, reward) {
+            const historyList = document.getElementById('historyList');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.style.borderLeftColor = reward.color;
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            historyItem.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="color: ${reward.color}">${reward.name}</strong>
+                    <small>${time}</small>
+                </div>
+                <div>${word}</div>
+                <div style="font-size: 0.8em; color: #aaa;">
+                    +${reward.eidos} эйдосов, +${reward.xp} XP
+                </div>
+            `;
+            
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            if (historyList.children.length > 10) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        // ========== СОХРАНЕНИЕ ИГРЫ ==========
+        function saveGame() {
+            const saveData = {
+                eidos: gameState.eidos,
+                xp: gameState.xp,
+                form: gameState.form,
+                ether: gameState.ether,
+                rice: gameState.rice,
+                level: gameState.level,
+                levelUpCost: gameState.levelUpCost,
+                formiks: gameState.formiks,
+                lastSave: new Date().toLocaleString(),
+                totalEidosEarned: gameState.totalEidosEarned,
+                totalRiceConsumed: gameState.totalRiceConsumed
+            };
+            
+            localStorage.setItem('epicRouletteSave', JSON.stringify(saveData));
+            gameState.lastSave = saveData.lastSave;
+            
+            createNotification("💾 Игра сохранена!", "#4169e1");
+        }
+
+        // ========== ЗАГРУЗКА ИГРЫ ==========
+        function loadGame() {
+            const saved = localStorage.getItem('epicRouletteSave');
+            if (saved) {
+                try {
+                    const saveData = JSON.parse(saved);
+                    
+                    gameState.eidos = saveData.eidos || 100;
+                    gameState.xp = saveData.xp || 0;
+                    gameState.form = saveData.form || 0;
+                    gameState.ether = saveData.ether || 0;
+                    gameState.rice = saveData.rice || 500;
+                    gameState.level = saveData.level || 1;
+                    gameState.levelUpCost = saveData.levelUpCost || 2000;
+                    gameState.formiks = saveData.formiks || [];
+                    gameState.lastSave = saveData.lastSave;
+                    gameState.totalEidosEarned = saveData.totalEidosEarned || 0;
+                    gameState.totalRiceConsumed = saveData.totalRiceConsumed || 0;
+                    
+                    updateDisplay();
+                    createNotification("📂 Игра загружена!", "#00ff00");
+                } catch (e) {
+                    console.error("Ошибка загрузки:", e);
+                    createNotification("⚠️ Ошибка загрузки сохранения", "#ff0000");
+                }
+            }
+        }
+
+        // ========== УВЕДОМЛЕНИЯ ==========
+        function createNotification(message, color) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.borderLeftColor = color;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // ========== АВТОСОХРАНЕНИЕ ==========
+        setInterval(saveGame, 120000);
+        
+        // ========== ОБНОВЛЕНИЕ ТАЙМЕРА КАЖДУЮ СЕКУНДУ ==========
+        function showFormikProduction() {
+            if (gameState.formiks.length > 0) {
+                document.getElementById('productionTimer').textContent = gameState.productionTimer;
+            }
+        }
+        setInterval(showFormikProduction, 1000);
+    </script>
+</body>
+</html>
